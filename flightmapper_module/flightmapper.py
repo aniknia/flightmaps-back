@@ -10,12 +10,16 @@ import os
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-class Action:
+# TODO: make  input loactions to upper
+# TODO: modify code for individual requests instead of batches
+# TODO: remove useless comments, code should speak for itself
 
+
+class Action:
     def __init__(self):
         # File paths
-        self.map_file = os.path.join(path, 'kavraiskiy_vii_dark.jpg')
-        output_path = ''
+        self.map_file = os.path.join(path, "kavraiskiy_vii_dark.jpg")
+        output_path = ""
 
         # Flags
         reload = True
@@ -35,15 +39,15 @@ class Action:
         east = [2045, 592]
         north = [1025, 3]
         south = [1025, 1181]
-        self.maplims = [west[0],east[0],north[1],south[1]]
+        self.maplims = [west[0], east[0], north[1], south[1]]
 
         # Plot settings
         self.trajectory_density = 1000
-        self.past_symbol = 'r.'
-        self.future_symbol = 'c.'
+        self.past_symbol = "r."
+        self.future_symbol = "c."
         self.trajectory_marker_size = 0.5
-        self.city_symbol = 'x'
-        self.city_color = 'y'
+        self.city_symbol = "x"
+        self.city_color = "y"
         self.city_size = 2
         self.future_index = 11
 
@@ -52,11 +56,11 @@ class Action:
 
         # Import airport data
         if reload:
-            airport_file = os.path.join(path, 'airports.csv')
+            airport_file = os.path.join(path, "airports.csv")
             self.airports = pd.read_csv(airport_file)
 
         # Import flight data
-        flight_file = os.path.join(path, 'Flights.csv')
+        flight_file = os.path.join(path, "Flights.csv")
         self.flights = pd.read_csv(flight_file)
 
         # Array of coordinates
@@ -64,22 +68,22 @@ class Action:
         self.json_obj = {}
 
         # For debugging
-        pd.set_option('display.max_rows', 10)
+        pd.set_option("display.max_rows", 10)
 
     def airport_search(self, airport_code):
         # Grabs latitude and longitude of airport
         if len(airport_code) == 3:
             try:
-                entry = self.airports.loc[self.airports['IATA'].isin([airport_code])]
-                lat = float(entry['Latitude'])
-                long = float(entry['Longitude'])
+                entry = self.airports.loc[self.airports["IATA"].isin([airport_code])]
+                lat = float(entry["Latitude"])
+                long = float(entry["Longitude"])
             except:
                 return np.nan
         else:
             try:
-                entry = self.airports.loc[self.airports['ICAO'].isin([airport_code])]
-                lat = float(entry['Latitude'])
-                long = float(entry['Longitude'])
+                entry = self.airports.loc[self.airports["ICAO"].isin([airport_code])]
+                lat = float(entry["Latitude"])
+                long = float(entry["Longitude"])
             except:
                 return np.nan
         return lat, long
@@ -91,19 +95,28 @@ class Action:
 
         f = np.linspace(0, 1, self.trajectory_density)
 
-        d = np.arccos(np.sin(np.radians(lat1)) * np.sin(np.radians(lat2)) + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.cos(np.radians(long1 - long2)))
+        d = np.arccos(
+            np.sin(np.radians(lat1)) * np.sin(np.radians(lat2))
+            + np.cos(np.radians(lat1))
+            * np.cos(np.radians(lat2))
+            * np.cos(np.radians(long1 - long2))
+        )
         A = np.sin(np.radians((1 - f) * d)) / np.sin(np.radians(d))
         B = np.sin(np.radians(f * d)) / np.sin(np.radians(d))
 
-        x = A * np.cos(np.radians(lat1)) * np.cos(np.radians(long1)) + B * np.cos(np.radians(lat2)) * np.cos(np.radians(long2))
-        y = A * np.cos(np.radians(lat1)) * np.sin(np.radians(long1)) + B * np.cos(np.radians(lat2)) * np.sin(np.radians(long2))
+        x = A * np.cos(np.radians(lat1)) * np.cos(np.radians(long1)) + B * np.cos(
+            np.radians(lat2)
+        ) * np.cos(np.radians(long2))
+        y = A * np.cos(np.radians(lat1)) * np.sin(np.radians(long1)) + B * np.cos(
+            np.radians(lat2)
+        ) * np.sin(np.radians(long2))
         z = A * np.sin(np.radians(lat1)) + B * np.sin(np.radians(lat2))
 
         traj_lat = np.arctan2(z, np.sqrt(np.power(x, 2) + np.power(y, 2)))
         traj_long = np.arctan2(y, x)
 
-        trajraw = pd.DataFrame(traj_lat, columns = ['Latitude'])
-        trajraw['Longitude'] = traj_long
+        trajraw = pd.DataFrame(traj_lat, columns=["Latitude"])
+        trajraw["Longitude"] = traj_long
 
         return trajraw
 
@@ -112,16 +125,25 @@ class Action:
         # degrees. x and y are scaled to unit values.
 
         # Converting points to kavraiskiy points
-        trajkrav['Longitude'] = trajkrav.apply(lambda x: ((3 * x['Longitude'] / 2) * np.sqrt((1 / 3) - np.power((x['Latitude'] / np.pi), 2)) * (2 / (np.sqrt(3) * np.pi))), axis=1)
+        trajkrav["Longitude"] = trajkrav.apply(
+            lambda x: (
+                (3 * x["Longitude"] / 2)
+                * np.sqrt((1 / 3) - np.power((x["Latitude"] / np.pi), 2))
+                * (2 / (np.sqrt(3) * np.pi))
+            ),
+            axis=1,
+        )
         # Not sure which of the two below is faster
         # latlong['Latitude'] = (-1) * latlong['Latitude'] / (np.pi / 2)
-        trajkrav['Latitude'] = trajkrav['Latitude'].map(lambda x: (-1) * x / (np.pi / 2))
+        trajkrav["Latitude"] = trajkrav["Latitude"].map(
+            lambda x: (-1) * x / (np.pi / 2)
+        )
 
         return trajkrav
 
     def scaler(self, trajxy):
         # Setting up variables
-        trajsc  = pd.DataFrame([], columns = ['Latitude', 'Longitude'])
+        trajsc = pd.DataFrame([], columns=["Latitude", "Longitude"])
 
         # Finding map bounds
         width = (self.maplims[1] - self.maplims[0]) / 2
@@ -130,27 +152,22 @@ class Action:
         zerolong = self.maplims[0] + width
         zerolat = self.maplims[2] + height
 
-        #Edge of map coefficients
+        # Edge of map coefficients
         a = 0.001332
         b = -1.602
         c = 495
         d = 0
 
         # Scaling points to world map
-        trajsc['Latitude'] = trajxy['Latitude'].map(lambda x: zerolat + (height * x), na_action='ignore')
-        #trajsc['Latitude'] = trajxy['Longitude'].map(lambda x: np.nan if (zerolong + (width * x)) < 120 else (zerolong + (width * x)), na_action='ignore')
-        temp = np.ones(len(trajsc['Latitude']))
-        for i in range(0, len(trajsc['Latitude'])):
-            if (zerolong + (width * trajxy['Longitude'][i])) < (a*pow(trajsc['Latitude'][i] + d, 2) + b*pow(trajsc['Latitude'][i] + d, 1) + c):
-                temp[i] = np.nan
-            else:
-                temp[i] = (zerolong + (width * trajxy['Longitude'][i]))
-        trajsc['Longitude'] = temp
+        trajsc["Latitude"] = trajxy["Latitude"].map(
+            lambda x: zerolat + (height * x), na_action="ignore"
+        )
+        # trajsc['Latitude'] = trajxy['Longitude'].map(lambda x: np.nan if (zerolong + (width * x)) < 120 else (zerolong + (width * x)), na_action='ignore')
+        temp = np.ones(len(trajsc["Latitude"]))
+        for i in range(0, len(trajsc["Latitude"])):
+            temp[i] = zerolong + (width * trajxy["Longitude"][i])
+        trajsc["Longitude"] = temp
 
-        #if xsc < (1 / 1300) * np.sign(-ysc + 586) * np.power(np.abs(-ysc + 586), 2.1):
-        #    xsc = np.nan
-        #elif xsc < (1 / 1300) * np.sign(ysc - 586) * np.power(np.abs(ysc - 586), 2.1):
-        #    xsc = np.nan
         return trajsc
 
     def gc_kav_traj(self, start, stop):
@@ -177,13 +194,14 @@ class Action:
         trajsc = self.scaler(trajxy)
 
         return trajsc
+
     # locations=[['LAX', 'NRT'], ['LAX', 'EDHE'], ['EDHE', 'LEN'], ['LEN', 'LAX']]
 
     def logger(self, data):
         f = open(os.path.join(path, "demofile1.txt"), "a")
         f.write("\n New Data Set")
         for i in range(1, len(data[0]), 2):
-            f.write("\n From: " + str(data[0][i - 1]) + ' To: ' + str(data[0][i]))
+            f.write("\n From: " + str(data[0][i - 1]) + " To: " + str(data[0][i]))
         f.close()
 
     def format_data(self, data):
@@ -207,7 +225,7 @@ class Action:
             # Grab start and end locations
             route_start, route_end = row[0], row[1]
 
-            if route_start != '' or route_end != '':
+            if route_start != "" or route_end != "":
 
                 # Find starting and ending corrdinates
                 start_pos = self.airport_search(route_start)
@@ -221,19 +239,41 @@ class Action:
                 coordinates = self.gc_kav_traj(start_pos, end_pos)
 
                 # Plot path between locations
-                plt.plot(coordinates['Longitude'], coordinates['Latitude'], 'r', linewidth = self.trajectory_marker_size)
+                plt.plot(
+                    coordinates["Longitude"],
+                    coordinates["Latitude"],
+                    "r",
+                    linewidth=self.trajectory_marker_size,
+                )
 
                 # Plot start and end locations
-                plt.plot(coordinates['Longitude'][0], coordinates['Latitude'][0], self.city_symbol, color = self.city_color, markersize = self.city_size)
-                plt.plot(coordinates['Longitude'][self.trajectory_density - 1], coordinates['Latitude'][self.trajectory_density - 1], self.city_symbol, color = self.city_color, markersize = self.city_size)
-        plt.savefig(os.path.join(path, 'kavraiskiy_vii_wallpaper.jpg'), bbox_inches = 'tight', pad_inches = 0, dpi = self.img_size)
+                plt.plot(
+                    coordinates["Longitude"][0],
+                    coordinates["Latitude"][0],
+                    self.city_symbol,
+                    color=self.city_color,
+                    markersize=self.city_size,
+                )
+                plt.plot(
+                    coordinates["Longitude"][self.trajectory_density - 1],
+                    coordinates["Latitude"][self.trajectory_density - 1],
+                    self.city_symbol,
+                    color=self.city_color,
+                    markersize=self.city_size,
+                )
+        plt.savefig(
+            os.path.join(path, "kavraiskiy_vii_wallpaper.jpg"),
+            bbox_inches="tight",
+            pad_inches=0,
+            dpi=self.img_size,
+        )
 
     def get_coords(self):
         for row in self.locations:
             # Grab start and end locations
             route_start, route_end = row[0], row[1]
 
-            if route_start != '' or route_end != '':
+            if route_start != "" or route_end != "":
 
                 # Find starting and ending corrdinates
                 start_pos = self.airport_search(route_start)
@@ -243,12 +283,11 @@ class Action:
                 if end_pos == np.nan:
                     continue
 
-
                 # Convert coordinates to kavraiskiy vii coordinates
                 self.coordinates.append(self.gc_kav_traj(start_pos, end_pos))
 
     def pass_img(self):
-        im = Image.open(os.path.join(path, 'kavraiskiy_vii_wallpaper.jpg'))
+        im = Image.open(os.path.join(path, "kavraiskiy_vii_wallpaper.jpg"))
         data = io.BytesIO()
         im.save(data, "JPEG")
         encoded_img_data = base64.b64encode(data.getvalue())
@@ -257,23 +296,16 @@ class Action:
     def pass_json(self):
         i = 0
         for item in self.coordinates:
-            self.json_obj["lat_" + str(i)] = item["Latitude"].to_list()
-            self.json_obj["long_" + str(i)] = item["Longitude"].to_list()
+            self.json_obj["y_cords_" + str(i)] = item["Latitude"].to_list()
+            self.json_obj["x_cords_" + str(i)] = item["Longitude"].to_list()
             i = i + 1
 
-    def main(self, location_data = [['LAX', 'NRT'], ['JFK', 'LAX']]):
+    def main(self, location_data=[["LAX", "NRT"], ["JFK", "LAX"]]):
 
         self.format_data(location_data)
 
         self.get_coords()
 
-        #self.pass_json()
+        self.pass_json()
 
-        self.json_bot = {}
-        #self.json_bot['lat' + str(1)] = self.coordinates[0]["Latitude"].to_list()
-        self.json_bot['long' + str(1)] = self.coordinates[0]["Longitude"].to_list()
-        #self.json_bot['fak'] = [2, 34, 4]
-        #self.json_bot['no'] = [1, 4, 6]
-        # json isnt accepting np.nan
-
-        return self.json_bot
+        return self.json_obj
