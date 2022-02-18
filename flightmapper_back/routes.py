@@ -1,11 +1,6 @@
 from flightmapper_back import app
 
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+# TODO: add version control
+@app.get("/v1/{route_start}/{route_end}")
+def get_routes(route_start: str, route_end: str):
+    return {"x_cords": [], "y_cords": []}
