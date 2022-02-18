@@ -10,7 +10,6 @@ import os
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-# TODO: make  input loactions to upper
 # TODO: modify code for individual requests instead of batches
 # TODO: remove useless comments, code should speak for itself
 
@@ -58,10 +57,6 @@ class Action:
         if reload:
             airport_file = os.path.join(path, "airports.csv")
             self.airports = pd.read_csv(airport_file)
-
-        # Import flight data
-        flight_file = os.path.join(path, "Flights.csv")
-        self.flights = pd.read_csv(flight_file)
 
         # Array of coordinates
         self.coordinates = []
@@ -133,7 +128,8 @@ class Action:
             ),
             axis=1,
         )
-        # Not sure which of the two below is faster
+
+        # TODO: check which is faster
         # latlong['Latitude'] = (-1) * latlong['Latitude'] / (np.pi / 2)
         trajkrav["Latitude"] = trajkrav["Latitude"].map(
             lambda x: (-1) * x / (np.pi / 2)
@@ -162,11 +158,10 @@ class Action:
         trajsc["Latitude"] = trajxy["Latitude"].map(
             lambda x: zerolat + (height * x), na_action="ignore"
         )
-        # trajsc['Latitude'] = trajxy['Longitude'].map(lambda x: np.nan if (zerolong + (width * x)) < 120 else (zerolong + (width * x)), na_action='ignore')
-        temp = np.ones(len(trajsc["Latitude"]))
-        for i in range(0, len(trajsc["Latitude"])):
-            temp[i] = zerolong + (width * trajxy["Longitude"][i])
-        trajsc["Longitude"] = temp
+
+        trajsc["Longitude"] = trajxy["Longitude"].map(
+            lambda x: zerolong + (width * x), na_action="ignore"
+        )
 
         return trajsc
 
@@ -207,7 +202,7 @@ class Action:
     def format_data(self, data):
         self.locations = []
         for item in data:
-            self.locations.append([item[0], item[1]])
+            self.locations.append([str(item[0]).upper(), str(item[1]).upper()])
 
     def format_json(self, data):
         # INPUT: json from site frontend
