@@ -67,6 +67,7 @@ class Action:
 
     def airport_search(self, airport_code):
         # Grabs latitude and longitude of airport
+        airport_code = airport_code.upper()
         if len(airport_code) == 3:
             try:
                 entry = self.airports.loc[self.airports["IATA"].isin([airport_code])]
