@@ -73,14 +73,14 @@ class Action:
                 lat = float(entry["Latitude"])
                 long = float(entry["Longitude"])
             except:
-                return np.nan
+                return False
         else:
             try:
                 entry = self.airports.loc[self.airports["ICAO"].isin([airport_code])]
                 lat = float(entry["Latitude"])
                 long = float(entry["Longitude"])
             except:
-                return np.nan
+                return False
         return lat, long
 
     def great_circle(self, start, stop):
@@ -224,10 +224,10 @@ class Action:
 
                 # Find starting and ending corrdinates
                 start_pos = self.airport_search(route_start)
-                if start_pos == np.nan:
+                if start_pos == False:
                     continue
                 end_pos = self.airport_search(route_end)
-                if end_pos == np.nan:
+                if end_pos == False:
                     continue
 
                 # Convert coordinates to kavraiskiy vii coordinates
