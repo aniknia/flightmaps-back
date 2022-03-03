@@ -11,10 +11,17 @@ def default():
     return {"default": True}
 
 
-@app.get("/v1/{route_start}/{route_end}")
-def get_routes(route_start: str, route_end: str):
+# TODO: add error handling
+
+
+@app.get("/v1/get_route/{route_start}/{route_end}")
+def get_route(route_start: str, route_end: str):
     route = flight_app.main([[route_start, route_end]])
-    return {"x_cords": route["x_cords_0"], "y_cords": route["y_cords_0"]}
+    return {
+        "error": False,
+        "x_cords": route["x_cords_0"],
+        "y_cords": route["y_cords_0"],
+    }
 
 
 @app.get("/v1/check_code/{check_code}")
