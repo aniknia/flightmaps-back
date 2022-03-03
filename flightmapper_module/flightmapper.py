@@ -12,6 +12,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 
 # TODO: modify code for individual requests instead of batches
 # TODO: remove useless comments, code should speak for itself
+# TODO: see if seperating this file will make content more readable
 # TODO: add flight distance calculation
 # TODO: add flight time calculation
 # TODO: add flight co2 calculation
