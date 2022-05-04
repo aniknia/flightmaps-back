@@ -14,7 +14,7 @@ def default():
 # TODO: add error handling
 
 
-@app.get("/v1/get_route/{route_start}/{route_end}")
+@app.get("/v1/get-route/{route_start}/{route_end}")
 def get_route(route_start: str, route_end: str):
     route = flight_app.main([[route_start, route_end]])
     return {
@@ -24,7 +24,7 @@ def get_route(route_start: str, route_end: str):
     }
 
 
-@app.get("/v1/check_code/{check_code}")
+@app.get("/v1/check-code/{check_code}")
 def check_code(check_code: str):
     if flight_app.airport_search(check_code) != False:
         return {"check_code": True}
