@@ -8,6 +8,8 @@ origins = [
     "https://localhost:3000",
     "http://localhost",
     "http://localhost:8080",
+    "http://theflightmapper.com",
+    "https://theflighmapper.com",
     "https://flightmapper-front.vercel.app",
 ]
 
