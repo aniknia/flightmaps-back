@@ -8,7 +8,7 @@ origins = [
     "https://localhost:3000",
     "http://localhost",
     "http://localhost:8080",
-    "https://flightmapper-front.vercel.app/",
+    "https://flightmapper-front.vercel.app",
 ]
 
 app.add_middleware(
