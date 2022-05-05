@@ -11,6 +11,7 @@ origins = [
     "http://theflightmapper.com",
     "https://theflighmapper.com",
     "https://flightmapper-front.vercel.app",
+    "https://flightmapper-back-production.up.railway.app",
 ]
 
 app.add_middleware(
