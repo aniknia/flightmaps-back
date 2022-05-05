@@ -12,11 +12,12 @@ origins = [
     "https://theflighmapper.com",
     "https://flightmapper-front.vercel.app",
     "https://flightmapper-back-production.up.railway.app",
+    "https://api.theflightmapper.com",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
