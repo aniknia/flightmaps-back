@@ -27,8 +27,8 @@ def get_route(route_start: str, route_end: str):
     route = flight_app.main([[route_start, route_end]])
     return {
         "error": False,
-        "x_cords": route["x_cords_0"],
-        "y_cords": route["y_cords_0"],
+        "x": route["x_cords_0"],
+        "y": route["y_cords_0"],
     }
 
 
