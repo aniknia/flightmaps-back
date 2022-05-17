@@ -28,6 +28,9 @@ def get_route(route_start: str, route_end: str):
             "error": False,
             "x": route["x"],
             "y": route["y"],
+            "time": route["time"],
+            "distance": route["distance"],
+            "carbon": route["carbon"],
         }
     else:
         return {"error": True}
