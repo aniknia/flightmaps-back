@@ -34,39 +34,3 @@ def get_route(route_start: str, route_end: str):
         }
     else:
         return {"error": True}
-
-
-@app.get("/v1/get-time/{route_start}/{route_end}")
-def get_time(route_start: str, route_end: str):
-    time = flightmapper_function.main([route_start, route_end])
-    if time:
-        return {
-            "error": False,
-            "time": time["time"],
-        }
-    else:
-        return {"error": True}
-
-
-@app.get("/v1/get-distance/{route_start}/{route_end}")
-def get_distance(route_start: str, route_end: str):
-    distance = flightmapper_function.main([route_start, route_end])
-    if distance:
-        return {
-            "error": False,
-            "distance": distance["distance"],
-        }
-    else:
-        return {"error": True}
-
-
-@app.get("/v1/get-carbon/{route_start}/{route_end}")
-def get_carbon(route_start: str, route_end: str):
-    carbon = flightmapper_function.main([route_start, route_end])
-    if carbon:
-        return {
-            "error": False,
-            "carbon": carbon["carbon"],
-        }
-    else:
-        return {"error": True}

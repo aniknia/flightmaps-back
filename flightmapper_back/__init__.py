@@ -1,21 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
+from fastapi.staticfiles import StaticFiles
 
 # TODO: Restrict origins
 
 origins = [
     "http://localhost:3000",
     "https://localhost:3000",
-    "http://localhost",
-    "http://localhost:8080",
-    "http://theflightmapper.com",
-    "https://theflighmapper.com",
-    "https://flightmapper-front.vercel.app",
-    "https://flightmapper-back-production.up.railway.app",
-    "https://api.theflightmapper.com",
+    "https://api.flightmaps.io",
 ]
+
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,5 +19,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 from flightmapper_back import routes
