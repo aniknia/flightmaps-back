@@ -4,7 +4,7 @@ from flightmapper_module import flightmapper_function
 # TODO: add version control
 
 
-@app.get("/v1/")
+@app.get("/")
 def default():
     return {"default": True}
 
@@ -12,7 +12,7 @@ def default():
 # TODO: add error handling
 
 
-@app.get("/v1/check-code/{check_code}")
+@app.get("/check-code/{check_code}")
 def check_code(check_code: str):
     if flightmapper_function.airport_search(check_code) != False:
         return {"check_code": True}
@@ -20,7 +20,7 @@ def check_code(check_code: str):
         return {"check_code": False}
 
 
-@app.get("/v1/get-route/{route_start}/{route_end}")
+@app.get("/get-route/{route_start}/{route_end}")
 def get_route(route_start: str, route_end: str):
     route = flightmapper_function.main([route_start, route_end])
     if route:
